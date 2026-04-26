@@ -1,31 +1,45 @@
-# TopicBlock — NLP Topic Modelling
+# TopicBlock
 
-Research project building a topic modelling pipeline to extract latent themes from large document corpora using LDA and NMF.
+A privacy-first browser extension that filters web content by topic and sentiment — all on-device, no data sent to any server.
 
-## Overview
-Applies Latent Dirichlet Allocation (LDA) and Non-negative Matrix Factorisation (NMF) to AI research literature. Evaluates coherence scores across topic counts and surfaces dominant themes per document cluster.
+Built for the FAI module (MSc AI, NCI Dublin 2025) as a group project. The full source code lives at [amit27592/TopicBlock](https://github.com/amit27592/TopicBlock) — I'm a contributor there.
 
-## Tech Stack
-- Python 3.x
-- NLTK / spaCy
-- Gensim (LDA)
-- Scikit-learn (NMF)
-- Pandas / NumPy
-- Matplotlib / WordCloud
+## What it does
 
-## Structure
+TopicBlock runs a two-part ML pipeline locally. The browser extension (TypeScript, Manifest V3) handles DOM segmentation and user interaction. A native Python component does the actual inference — topic classification and sentiment analysis — over Chrome Native Messaging.
+
+The key design choice was keeping everything local. Zero-shot topic classification means users can block arbitrary topics without retraining, and the SQLite-backed embedding cache keeps it fast on repeated content.
+
+Supported sites: Reddit, Hacker News, YouTube.
+
+## Architecture
+
 ```
-notebooks/    # Jupyter notebooks with pipeline and analysis
-data/         # Input document corpus
-results/      # Topic visualisations and coherence plots
-report/       # FAI module project report
+Browser extension (TypeScript)
+  ├── DOM segmentation + site adapters (Reddit, HN, YouTube)
+  ├── Filter actions: Hide / Blur / Remove
+  └── Native messaging client
+
+Native component (Python)
+  ├── Text preprocessing + language detection (FastText)
+  ├── Topic model — zero-shot via MiniLM-L6-v2 or BGE-small
+  ├── Sentiment — VADER (fast) or DistilBERT (accurate)
+  └── SQLite LRU cache for repeated content
 ```
 
-## Run Locally
-```bash
-pip install -r requirements.txt
-jupyter notebook notebooks/
-```
+## Stack
+
+TypeScript, Manifest V3, Python 3.10+, HuggingFace, VADER, FastText, SQLite
+
+## Report
+
+`FAI_TopicBlock_Report.pdf` — the academic write-up covering the design, architecture decisions, and evaluation.
+
+## Full source
+
+[github.com/amit27592/TopicBlock](https://github.com/amit27592/TopicBlock)
 
 ---
-MSc Artificial Intelligence — NCI Dublin, 2025
+
+MSc Artificial Intelligence, NCI Dublin 2025  
+Joshua Thomas & Amit Gupta
